@@ -23,6 +23,22 @@ const App = () => {
 
   const [grams, setGrams] = useState([]);
 
+  const [loading, setLoading] = useState(false);
+
+  const handleFile = (e) => {
+    const file = handleFileChange(e);
+    if (file) {
+      setLoading(true);
+      Papa.parse(file, {
+        complete: (results) => {
+          setCSV(results.data);
+          setIndexedCSV(indexCSV(results.data));
+          setLoading(false);
+        },
+      });
+    }
+  };
+
   // It will store the file uploaded by the user
   const [file, setFile] = useState("");
 
@@ -80,94 +96,76 @@ const App = () => {
     setMatches(results);
   };
 
-  return (
-    <div>
-      <label htmlFor="csvInput" style={{ display: "block" }}>
-        Enter CSV File
-      </label>
-      <input
-        onChange={(e) => {
-          setFile(handleFileChange(e));
-        }}
-        id="csvInput"
-        name="file"
-        type="File"
-      />
-      <div>
-        <button
-          onClick={() => {
-            parseCSV(file);
-          }}
-        >
-          Upload
-        </button>
-        <button
-          onClick={() => {
-            setIndexedCSV(indexCSV(CSV));
-          }}
-        >
-          Index
-        </button>
-        <button
-          onClick={() => {
-            console.log(CSV);
-          }}
-        >
-          console log CSV
-        </button>
-        <button
-          onClick={() => {
-            console.log(indexedCSV);
-            console.log(Object.keys(indexedCSV).length);
-          }}
-        >
-          console log indexedCSV
-        </button>
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => {
-            let search = e.target.value;
-            setSearchText(search);
-
-            // get all of the bigrams from the search text character by character
-
-            let searchTextBigrams = []; // remove all of the spaces from the search text
-            let word = search.replace(/\s/g, "");
-            console.log("word", word);
-            while (word.length > 1) {
-              let gram = word.slice(0, 2);
-              searchTextBigrams.push(gram);
-              word = word.slice(1);
-            }
-            setGrams(searchTextBigrams);
-            setGramCount(searchTextBigrams.length);
-          }}
-        />
-        <button
-          onClick={() => {
-            findMatches(indexedCSV, grams, gramCount);
-          }}
-        >
-          calulate matches
-        </button>
-      </div>
-      <div>
-        {matches.length > 0 ? (
+  {
+    if (loading) {
+      return (
+        <div>
+          <h1>Loading...</h1>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <label htmlFor="csvInput" style={{ display: "block" }}>
+            Enter CSV File
+          </label>
+          <input
+            onChange={(e) => {
+              e.preventDefault();
+              setFile(e.target.files[0]);
+              handleFile(e);
+            }}
+            id="csvInput"
+            name="file"
+            type="File"
+          />
           <div>
-            <h2>Matches</h2>
-            {matches.map((match) => {
-              return <p>{CSV[match]}</p>;
-            })}
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => {
+                let search = e.target.value;
+                setSearchText(search);
+
+                // get all of the bigrams from the search text character by character
+
+                let searchTextBigrams = []; // remove all of the spaces from the search text
+                let word = search.replace(/\s/g, "");
+                console.log("word", word);
+                while (word.length > 1) {
+                  let gram = word.slice(0, 2);
+                  searchTextBigrams.push(gram);
+                  word = word.slice(1);
+                }
+                setGrams(searchTextBigrams);
+                setGramCount(searchTextBigrams.length);
+              }}
+            />
+            <button
+              onClick={() => {
+                findMatches(indexedCSV, grams, gramCount);
+              }}
+            >
+              calulate matches
+            </button>
           </div>
-        ) : (
           <div>
-            <h2>No Matches</h2>
+            {matches.length > 0 ? (
+              <div>
+                <h2>Matches</h2>
+                {matches.map((match) => {
+                  return <p>{CSV[match]}</p>;
+                })}
+              </div>
+            ) : (
+              <div>
+                <h2>No Matches</h2>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </div>
-  );
+        </div>
+      );
+    }
+  }
 };
-
 export default App;
