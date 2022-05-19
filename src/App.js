@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { handleFileChange } from "./UTILS/uploadCSV";
+import { handleFileChange } from "./UTILS/handleFileChange";
 import { indexCSV } from "./UTILS/indexCSV";
+import { findMatches } from "./UTILS/findMatches";
+import { convertTextToBigramArr } from "./UTILS/convertTextToBigramArr";
 import Papa from "papaparse";
 
 const App = () => {
@@ -11,12 +13,6 @@ const App = () => {
 
   const [searchText, setSearchText] = useState("");
 
-  const [currentSearch, setCurrentSearch] = useState("");
-
-  const [searchResults, setSearchResults] = useState("");
-
-  const [possibleMatches, setPossibleMatches] = useState([]);
-
   const [matches, setMatches] = useState([]);
 
   const [gramCount, setGramCount] = useState(0);
@@ -25,7 +21,7 @@ const App = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const handleFile = (e) => {
+  const handleUpload = (e) => {
     const file = handleFileChange(e);
     if (file) {
       setLoading(true);
@@ -39,63 +35,15 @@ const App = () => {
     }
   };
 
-  // It will store the file uploaded by the user
-  const [file, setFile] = useState("");
-
-  // parse the file and set the state
-  // must be called in the same state as the useState file since it is unable to return a file using complete.
-  const parseCSV = (file) => {
-    // Parse the CSV file
-    Papa.parse(file, {
-      complete: (results) => {
-        // Set the CSV state
-        setCSV(results.data);
-      },
-    });
+  // handle search and set loading
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const searchTextBigrams = convertTextToBigramArr(searchText);
+    const matches = await findMatches(indexedCSV, searchTextBigrams, gramCount);
+    setMatches(matches);
+    setLoading(false);
   };
-
-  const findMatches = (indexedCSV, searchTextBigrams, gramCount) => {
-    const matches = {};
-    console.log("searchTextBigrams", searchTextBigrams);
-    console.log("gramCount", gramCount);
-    console.log("indexedCSV", indexedCSV);
-
-    // add all of the bigrams to the matches array
-
-    for (let i = 0; i < searchTextBigrams.length; i++) {
-      let bigram = searchTextBigrams[i];
-      if (indexedCSV[bigram]) {
-        // iterate through the indexes and add them to the matches array and add the count + 1 to the matches count
-        for (let y = 0; y < indexedCSV[bigram].length; y++) {
-          let index = indexedCSV[bigram][y];
-          if (matches[index]) {
-            matches[index] += 1;
-          } else {
-            matches[index] = 1;
-          }
-        }
-      }
-    }
-
-    // make a results array of all the matche key value parist that have a count = to the gramCount
-
-    let results = [];
-
-    for (let key in matches) {
-      if (matches[key] >= gramCount) {
-        results.push(key);
-      }
-    }
-
-    console.log("results", results);
-    console.log("gram count", gramCount);
-
-    console.log("shibuya test matches", indexedCSV["渋谷"]);
-    console.log("matches", matches);
-
-    setMatches(results);
-  };
-
   {
     if (loading) {
       return (
@@ -107,13 +55,12 @@ const App = () => {
       return (
         <div>
           <label htmlFor="csvInput" style={{ display: "block" }}>
-            Enter CSV File
+            Enter CSV File (must be UTF-8 encoded)
           </label>
           <input
             onChange={(e) => {
               e.preventDefault();
-              setFile(e.target.files[0]);
-              handleFile(e);
+              handleUpload(e);
             }}
             id="csvInput"
             name="file"
@@ -124,26 +71,23 @@ const App = () => {
               type="text"
               value={searchText}
               onChange={(e) => {
-                let search = e.target.value;
-                setSearchText(search);
+                setSearchText(e.target.value);
+                const searchTextBigrams = convertTextToBigramArr(
+                  e.target.value
+                );
 
-                // get all of the bigrams from the search text character by character
-
-                let searchTextBigrams = []; // remove all of the spaces from the search text
-                let word = search.replace(/\s/g, "");
-                console.log("word", word);
-                while (word.length > 1) {
-                  let gram = word.slice(0, 2);
-                  searchTextBigrams.push(gram);
-                  word = word.slice(1);
-                }
                 setGrams(searchTextBigrams);
                 setGramCount(searchTextBigrams.length);
               }}
             />
             <button
-              onClick={() => {
-                findMatches(indexedCSV, grams, gramCount);
+              onClick={(e) => {
+                e.preventDefault();
+                const searchTextBigrams = convertTextToBigramArr(searchText);
+                setMatches(
+                  findMatches(indexedCSV, searchTextBigrams, gramCount)
+                );
+                setLoading(false);
               }}
             >
               calulate matches
