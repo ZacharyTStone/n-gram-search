@@ -4,6 +4,7 @@ import { indexCSV } from "./UTILS/indexCSV";
 import { findMatches } from "./UTILS/findMatches";
 import { convertTextToBigramArr } from "./UTILS/convertTextToBigramArr";
 import Papa from "papaparse";
+import "./App.css";
 
 const App = () => {
   // This state will store the raw data
@@ -17,11 +18,14 @@ const App = () => {
 
   const [gramCount, setGramCount] = useState(0);
 
-  const [grams, setGrams] = useState([]);
-
   const [loading, setLoading] = useState(false);
 
+  const [uploaded, setUploaded] = useState(false);
+
   const handleUpload = (e) => {
+    // dont hide the file input
+    e.preventDefault();
+
     const file = handleFileChange(e);
     if (file) {
       setLoading(true);
@@ -30,6 +34,8 @@ const App = () => {
           setCSV(results.data);
           setIndexedCSV(indexCSV(results.data));
           setLoading(false);
+          alert("File uploaded");
+          setUploaded(true);
         },
       });
     }
@@ -53,41 +59,47 @@ const App = () => {
       );
     } else {
       return (
-        <div>
-          <label htmlFor="csvInput" style={{ display: "block" }}>
-            Enter CSV File (must be UTF-8 encoded)
-          </label>
-          <input
-            onChange={(e) => {
-              e.preventDefault();
-              handleUpload(e);
-            }}
-            id="csvInput"
-            name="file"
-            type="File"
-          />
+        <div className="app">
+          {!uploaded ? (
+            <>
+              <label
+                htmlFor="csvInput"
+                style={{ display: "block", margin: "20px" }}
+              >
+                Enter CSV File (must be UTF-8 encoded)
+              </label>
+              <input
+                style={{ display: "block", alignSelf: "center" }}
+                onChange={(e) => {
+                  handleUpload(e);
+                  setUploaded(true);
+                }}
+                id="csvInput"
+                name="file"
+                type="File"
+              />
+            </>
+          ) : null}
+
           <div>
+            <label htmlFor="searchText">Search Text</label>
+
             <input
               type="text"
               value={searchText}
+              style={{ display: "block" }}
               onChange={(e) => {
                 setSearchText(e.target.value);
                 const searchTextBigrams = convertTextToBigramArr(
                   e.target.value
                 );
 
-                setGrams(searchTextBigrams);
                 setGramCount(searchTextBigrams.length);
               }}
             />
             <button
               onClick={(e) => {
-                e.preventDefault();
-                const searchTextBigrams = convertTextToBigramArr(searchText);
-                setMatches(
-                  findMatches(indexedCSV, searchTextBigrams, gramCount)
-                );
-                setLoading(false);
+                handleSearch(e);
               }}
             >
               calulate matches

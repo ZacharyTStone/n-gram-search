@@ -1,0 +1,16 @@
+html {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  width: "fit-content";
+  min-width: 500px;
+  height: 100%;
+  justify-items: center;
+}
