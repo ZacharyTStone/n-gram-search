@@ -12,7 +12,13 @@ const indexCSV = (csv) => {
         let gram = word.slice(0, 2);
         if (index[gram]) {
           // if the gram is already in the index, add the entire row index to the array
-          index[gram].push(i);
+          if (index[gram].includes(i)) {
+            // do nothing
+          }
+          // if the gram is not in the index, add the entire row index to the array
+          else {
+            index[gram].push(i);
+          }
         } else {
           index[gram] = [i];
         }
@@ -20,9 +26,9 @@ const indexCSV = (csv) => {
       }
     }
   }
-  console.log(index["渋谷"]);
-  var size = Object.keys(index).length;
-  console.log(size);
+  console.log("index", index);
+  console.log("index length", Object.keys(index).length);
+  console.log("shibuya example", index["渋谷"]);
   return index;
 };
 

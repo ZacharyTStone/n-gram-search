@@ -21,6 +21,8 @@ const App = () => {
 
   const [gramCount, setGramCount] = useState(0);
 
+  const [grams, setGrams] = useState([]);
+
   // It will store the file uploaded by the user
   const [file, setFile] = useState("");
 
@@ -36,28 +38,50 @@ const App = () => {
     });
   };
 
-  const findMatches = (allPosibleMatches) => {
-    const matches = [];
-    allPosibleMatches.forEach((match) => {
-      if (match.length > gramCount) {
-        matches.push(match);
+  const findMatches = (indexedCSV, searchTextBigrams, gramCount) => {
+    const matches = {};
+    console.log("searchTextBigrams", searchTextBigrams);
+    console.log("gramCount", gramCount);
+    console.log("indexedCSV", indexedCSV);
+
+    // add all of the bigrams to the matches array
+
+    for (let i = 0; i < searchTextBigrams.length; i++) {
+      let bigram = searchTextBigrams[i];
+      if (indexedCSV[bigram]) {
+        // iterate through the indexes and add them to the matches array and add the count + 1 to the matches count
+        for (let y = 0; y < indexedCSV[bigram].length; y++) {
+          let index = indexedCSV[bigram][y];
+          if (matches[index]) {
+            matches[index] += 1;
+          } else {
+            matches[index] = 1;
+          }
+        }
       }
-    });
-    console.log(matches);
-    setMatches(matches);
+    }
+
+    // make a results array of all the matche key value parist that have a count = to the gramCount
+
+    let results = [];
+
+    for (let key in matches) {
+      if (matches[key] >= gramCount) {
+        results.push(key);
+      }
+    }
+
+    console.log("results", results);
+    console.log("gram count", gramCount);
+
+    console.log("shibuya test matches", indexedCSV["渋谷"]);
+    console.log("matches", matches);
+
+    setMatches(results);
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        fontSize: "1rem",
-      }}
-    >
+    <div>
       <label htmlFor="csvInput" style={{ display: "block" }}>
         Enter CSV File
       </label>
@@ -91,24 +115,56 @@ const App = () => {
         >
           console log CSV
         </button>
+        <button
+          onClick={() => {
+            console.log(indexedCSV);
+            console.log(Object.keys(indexedCSV).length);
+          }}
+        >
+          console log indexedCSV
+        </button>
         <input
           type="text"
           value={searchText}
           onChange={(e) => {
-            setSearchText(e.target.value);
-            const search = e.target.value;
+            let search = e.target.value;
+            setSearchText(search);
+
+            // get all of the bigrams from the search text character by character
+
+            let searchTextBigrams = []; // remove all of the spaces from the search text
+            let word = search.replace(/\s/g, "");
+            console.log("word", word);
+            while (word.length > 1) {
+              let gram = word.slice(0, 2);
+              searchTextBigrams.push(gram);
+              word = word.slice(1);
+            }
+            setGrams(searchTextBigrams);
+            setGramCount(searchTextBigrams.length);
           }}
         />
         <button
           onClick={() => {
-            findMatches(possibleMatches);
+            findMatches(indexedCSV, grams, gramCount);
           }}
         >
           calulate matches
         </button>
-        <p>
-          {possibleMatches.length} possible matches for {searchText}
-        </p>
+      </div>
+      <div>
+        {matches.length > 0 ? (
+          <div>
+            <h2>Matches</h2>
+            {matches.map((match) => {
+              return <p>{CSV[match]}</p>;
+            })}
+          </div>
+        ) : (
+          <div>
+            <h2>No Matches</h2>
+          </div>
+        )}
       </div>
     </div>
   );
