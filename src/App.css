@@ -20,7 +20,7 @@ html {
   flex-direction: column;
   width: "fit-content";
   width: 500px;
-  margin: auto;
+
   height: 100%;
   justify-items: center;
   align-self: center;
@@ -34,6 +34,6 @@ html {
   height: 100%;
   justify-items: center;
   border: 10px solid #f0f0f0;
-  margin: 20px;
+
   padding: 20px;
 }

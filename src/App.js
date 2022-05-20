@@ -1,13 +1,19 @@
 import React, { useState } from "react";
-import { handleFileChange } from "./UTILS/handleFileChange";
-import { indexCSV } from "./UTILS/indexCSV";
-import { findMatches } from "./UTILS/findMatches";
-import { convertTextToBigramArr } from "./UTILS/convertTextToBigramArr";
+import Title from "./components/Title";
 import Papa from "papaparse";
 import "./App.css";
 
+// helper functions
+
+import {
+  combineZipcodesAndPrepString,
+  convertTextToBigramArr,
+  findMatches,
+  handleFileChange,
+  indexCSV,
+} from "./utils";
+
 const App = () => {
-  // This state will store the raw data
   const [CSV, setCSV] = useState([]);
 
   const [indexedCSV, setIndexedCSV] = useState([]);
@@ -26,15 +32,16 @@ const App = () => {
 
   const [encoding, setEncoding] = useState("UTF-8");
 
-  const handleUpload = (e) => {
+  // 1. called when user uploads a file
+
+  const handleUpload = (e, encodingChoice) => {
     // dont hide the file input
     e.preventDefault();
-    console.log(encoding);
     const file = handleFileChange(e);
     if (file) {
       setLoading(true);
       Papa.parse(file, {
-        encoding: { encoding },
+        encoding: encodingChoice,
         complete: (results) => {
           setCSV(results.data);
           setIndexedCSV(indexCSV(results.data));
@@ -46,6 +53,8 @@ const App = () => {
     }
   };
 
+  // 2.  called when user searches
+
   const handleSearch = () => {
     setLoading(true);
     if (searchText.length > 0) {
@@ -53,15 +62,29 @@ const App = () => {
         setLoading(false);
       }, 2000);
     }
-    console.log("set loading");
-    setMatches([]);
 
     const searchTextBigrams = convertTextToBigramArr(searchText);
 
-    const results = findMatches(indexedCSV, searchTextBigrams, gramCount);
+    let results = findMatches(indexedCSV, searchTextBigrams, gramCount);
+    console.log(results);
 
+    // check just to see if the file is the Japan one
+    console.log(CSV[0][0]);
+    if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
+      // if the file is the Japan one, then we need to combine the zipcodes
+      results = combineZipcodesAndPrepString(results, CSV);
+    } else {
+      // convert the file to string
+      results = results.map((result) => {
+        let curr = CSV[result].join("");
+        return curr;
+      });
+    }
     setMatches(results);
   };
+
+  // begining of UI Code
+
   if (loading) {
     return (
       <div>
@@ -71,7 +94,7 @@ const App = () => {
   } else {
     return (
       <div className="app">
-        <h1 className="title">CSV Search</h1>
+        <Title />
         <div className="search-container">
           {!uploaded ? (
             <div
@@ -121,7 +144,7 @@ const App = () => {
               <input
                 style={{ display: "block", alignSelf: "center" }}
                 onChange={(e) => {
-                  handleUpload(e);
+                  handleUpload(e, encoding);
                   setUploaded(true);
                 }}
                 id="csvInput"
@@ -136,7 +159,6 @@ const App = () => {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              margin: "20px",
             }}
           >
             <label htmlFor="searchText">Search Text</label>
@@ -179,7 +201,7 @@ const App = () => {
                       padding: "10px",
                     }}
                   >
-                    {CSV[match]}
+                    {match}
                   </p>
                 );
               })}
