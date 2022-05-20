@@ -30,6 +30,7 @@ const App = () => {
     if (file) {
       setLoading(true);
       Papa.parse(file, {
+        encoding: "Shift_JIS",
         complete: (results) => {
           setCSV(results.data);
           setIndexedCSV(indexCSV(results.data));
@@ -46,9 +47,8 @@ const App = () => {
     e.preventDefault();
     setLoading(true);
     const searchTextBigrams = convertTextToBigramArr(searchText);
-    const matches = await findMatches(indexedCSV, searchTextBigrams, gramCount);
+    const matches = findMatches(indexedCSV, searchTextBigrams, gramCount);
     setMatches(matches);
-    setLoading(false);
   };
   {
     if (loading) {
@@ -66,7 +66,7 @@ const App = () => {
                 htmlFor="csvInput"
                 style={{ display: "block", margin: "20px" }}
               >
-                Enter CSV File (must be UTF-8 encoded)
+                Enter CSV File (must be Shift_JIS encoded)
               </label>
               <input
                 style={{ display: "block", alignSelf: "center" }}
@@ -98,8 +98,9 @@ const App = () => {
               }}
             />
             <button
-              onClick={(e) => {
-                handleSearch(e);
+              onClick={async (e) => {
+                await handleSearch(e);
+                setLoading(false);
               }}
             >
               calulate matches
