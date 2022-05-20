@@ -22,15 +22,19 @@ const App = () => {
 
   const [uploaded, setUploaded] = useState(false);
 
+  const UTFEncodings = ["UTF-8", "UTF-16", "Shift_JIS", "EUC-JP"];
+
+  const [encoding, setEncoding] = useState("UTF-8");
+
   const handleUpload = (e) => {
     // dont hide the file input
     e.preventDefault();
-
+    console.log(encoding);
     const file = handleFileChange(e);
     if (file) {
       setLoading(true);
       Papa.parse(file, {
-        encoding: "Shift_JIS",
+        encoding: { encoding },
         complete: (results) => {
           setCSV(results.data);
           setIndexedCSV(indexCSV(results.data));
@@ -42,127 +46,158 @@ const App = () => {
     }
   };
 
-  // handle search and set loading
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    const searchTextBigrams = convertTextToBigramArr(searchText);
-    const matches = findMatches(indexedCSV, searchTextBigrams, gramCount);
-    setMatches(matches);
-  };
-  {
-    if (loading) {
-      return (
-        <div>
-          <h1>Loading...</h1>
-        </div>
-      );
-    } else {
-      return (
-        <div className="app">
-          <h1 className="title">CSV Search</h1>
-          <div className="search-container">
-            {!uploaded ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  alignContent: "center",
-                }}
-              >
-                <label
-                  htmlFor="csvInput"
-                  style={{
-                    display: "flex",
-                    margin: "20px",
-                    justifyContent: "center",
-                  }}
-                >
-                  Enter CSV File (must be Shift_JIS encoded)
-                </label>
-                <input
-                  style={{ display: "block", alignSelf: "center" }}
-                  onChange={(e) => {
-                    handleUpload(e);
-                    setUploaded(true);
-                  }}
-                  id="csvInput"
-                  name="file"
-                  type="File"
-                />
-              </div>
-            ) : null}
+  const handleSearch = () => {
+    setLoading(true);
+    if (searchText.length > 0) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    }
+    console.log("set loading");
+    setMatches([]);
 
+    const searchTextBigrams = convertTextToBigramArr(searchText);
+
+    const results = findMatches(indexedCSV, searchTextBigrams, gramCount);
+
+    setMatches(results);
+  };
+  if (loading) {
+    return (
+      <div>
+        <h1>Loading...</h1>
+      </div>
+    );
+  } else {
+    return (
+      <div className="app">
+        <h1 className="title">CSV Search</h1>
+        <div className="search-container">
+          {!uploaded ? (
             <div
               style={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                margin: "20px",
+                justifyContent: "center",
+                alignContent: "center",
               }}
             >
-              <label htmlFor="searchText">Search Text</label>
-
-              <input
-                type="text"
-                value={searchText}
-                style={{ display: "block" }}
-                onChange={(e) => {
-                  setSearchText(e.target.value);
-                  const searchTextBigrams = convertTextToBigramArr(
-                    e.target.value
-                  );
-
-                  setGramCount(searchTextBigrams.length);
-                }}
-              />
-              <button
-                onClick={(e) => {
-                  handleSearch(e);
+              <label
+                htmlFor="encoding"
+                style={{
+                  display: "flex",
+                  margin: "10px",
+                  justifyContent: "center",
                 }}
               >
-                calulate matches
-              </button>
+                Encoding (default: UTF-8)
+              </label>
+              <select
+                id="encoding"
+                style={{
+                  display: "flex",
+                  margin: "10px",
+                  justifyContent: "center",
+                }}
+                onChange={(e) => setEncoding(e.target.value)}
+              >
+                {UTFEncodings.map((encoding) => (
+                  <option key={encoding} value={encoding}>
+                    {encoding}
+                  </option>
+                ))}
+              </select>
+              <label
+                htmlFor="csvInput"
+                style={{
+                  display: "flex",
+                  margin: "20px",
+                  justifyContent: "center",
+                }}
+              >
+                Enter CSV File
+              </label>
+              <input
+                style={{ display: "block", alignSelf: "center" }}
+                onChange={(e) => {
+                  handleUpload(e);
+                  setUploaded(true);
+                }}
+                id="csvInput"
+                name="file"
+                type="File"
+              />
             </div>
-          </div>
-          <div className="results-container">
-            {matches.length > 0 ? (
-              <div>
-                <h2
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  Matches
-                </h2>
-                {matches.map((match) => {
-                  return (
-                    <p
-                      style={{
-                        padding: "10px",
-                      }}
-                    >
-                      {CSV[match]}
-                    </p>
-                  );
-                })}
-              </div>
-            ) : (
-              <div>
-                <h2
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  No Matches
-                </h2>
-              </div>
-            )}
+          ) : null}
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              margin: "20px",
+            }}
+          >
+            <label htmlFor="searchText">Search Text</label>
+
+            <input
+              type="text"
+              value={searchText}
+              style={{
+                display: "block",
+                marginTop: "10px",
+                marginBottom: "10px",
+              }}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                const searchTextBigrams = convertTextToBigramArr(
+                  e.target.value
+                );
+
+                setGramCount(searchTextBigrams.length);
+              }}
+            />
+            <button onClick={handleSearch}>calulate matches</button>
           </div>
         </div>
-      );
-    }
+        <div className="results-container">
+          {matches.length > 0 ? (
+            <div>
+              <h2
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                Matches
+              </h2>
+
+              {matches.map((match) => {
+                return (
+                  <p
+                    style={{
+                      padding: "10px",
+                    }}
+                  >
+                    {CSV[match]}
+                  </p>
+                );
+              })}
+            </div>
+          ) : (
+            <div>
+              <h2
+                style={{
+                  textAlign: "center",
+                }}
+              >
+                No Matches
+              </h2>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 };
 export default App;
