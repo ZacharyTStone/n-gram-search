@@ -45,7 +45,6 @@ const App = () => {
   // handle search and set loading
   const handleSearch = async (e) => {
     e.preventDefault();
-    setLoading(true);
     const searchTextBigrams = convertTextToBigramArr(searchText);
     const matches = findMatches(indexedCSV, searchTextBigrams, gramCount);
     setMatches(matches);
@@ -60,63 +59,104 @@ const App = () => {
     } else {
       return (
         <div className="app">
-          {!uploaded ? (
-            <>
-              <label
-                htmlFor="csvInput"
-                style={{ display: "block", margin: "20px" }}
-              >
-                Enter CSV File (must be Shift_JIS encoded)
-              </label>
-              <input
-                style={{ display: "block", alignSelf: "center" }}
-                onChange={(e) => {
-                  handleUpload(e);
-                  setUploaded(true);
+          <h1 className="title">CSV Search</h1>
+          <div className="search-container">
+            {!uploaded ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  alignContent: "center",
                 }}
-                id="csvInput"
-                name="file"
-                type="File"
-              />
-            </>
-          ) : null}
+              >
+                <label
+                  htmlFor="csvInput"
+                  style={{
+                    display: "flex",
+                    margin: "20px",
+                    justifyContent: "center",
+                  }}
+                >
+                  Enter CSV File (must be Shift_JIS encoded)
+                </label>
+                <input
+                  style={{ display: "block", alignSelf: "center" }}
+                  onChange={(e) => {
+                    handleUpload(e);
+                    setUploaded(true);
+                  }}
+                  id="csvInput"
+                  name="file"
+                  type="File"
+                />
+              </div>
+            ) : null}
 
-          <div>
-            <label htmlFor="searchText">Search Text</label>
-
-            <input
-              type="text"
-              value={searchText}
-              style={{ display: "block" }}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                const searchTextBigrams = convertTextToBigramArr(
-                  e.target.value
-                );
-
-                setGramCount(searchTextBigrams.length);
-              }}
-            />
-            <button
-              onClick={async (e) => {
-                await handleSearch(e);
-                setLoading(false);
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                margin: "20px",
               }}
             >
-              calulate matches
-            </button>
+              <label htmlFor="searchText">Search Text</label>
+
+              <input
+                type="text"
+                value={searchText}
+                style={{ display: "block" }}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  const searchTextBigrams = convertTextToBigramArr(
+                    e.target.value
+                  );
+
+                  setGramCount(searchTextBigrams.length);
+                }}
+              />
+              <button
+                onClick={(e) => {
+                  handleSearch(e);
+                }}
+              >
+                calulate matches
+              </button>
+            </div>
           </div>
-          <div>
+          <div className="results-container">
             {matches.length > 0 ? (
               <div>
-                <h2>Matches</h2>
+                <h2
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  Matches
+                </h2>
                 {matches.map((match) => {
-                  return <p>{CSV[match]}</p>;
+                  return (
+                    <p
+                      style={{
+                        padding: "10px",
+                      }}
+                    >
+                      {CSV[match]}
+                    </p>
+                  );
                 })}
               </div>
             ) : (
               <div>
-                <h2>No Matches</h2>
+                <h2
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  No Matches
+                </h2>
               </div>
             )}
           </div>
