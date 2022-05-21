@@ -46,57 +46,60 @@ const App = () => {
           setCSV(results.data);
           setIndexedCSV(indexCSV(results.data));
           setLoading(false);
-          alert("File uploaded");
+          alert("CSVを読み込みました");
           setUploaded(true);
         },
       });
     }
   };
 
+  // --------------------------------------------------//
   // 2. CSVを検索する
 
   const handleSearch = () => {
     setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
     if (searchText.length > 0) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
+      const searchTextBigrams = convertTextToBigramArr(searchText);
+
+      let results = findMatches(indexedCSV, searchTextBigrams, gramCount);
+
+      // 日本の郵便番号のCSVのチェック
+
+      if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
+        //
+        results = combineZipcodesAndPrepString(results, CSV);
+      } else {
+        // convert the file to string
+        results = results.map((result) => {
+          let curr = CSV[result].join("");
+          return curr;
+        });
+      }
+      setMatches(results);
     }
-
-    const searchTextBigrams = convertTextToBigramArr(searchText);
-
-    let results = findMatches(indexedCSV, searchTextBigrams, gramCount);
-    console.log(results);
-
-    // 日本の郵便番号のCSVのチェック
-
-    if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
-      //
-      results = combineZipcodesAndPrepString(results, CSV);
-    } else {
-      // convert the file to string
-      results = results.map((result) => {
-        let curr = CSV[result].join("");
-        return curr;
-      });
-    }
-    setMatches(results);
   };
 
+  // --------------------------------------------------//
+
   //  UI の　始まる
+
+  // --------------------------------------------------//
 
   if (loading) {
     return (
       <div>
-        <h1>Loading...</h1>
+        <h1>ローディング...</h1>
       </div>
     );
   } else {
     return (
       <div className="app">
         <Title />
-        <div className="search-container">
-          {!uploaded ? (
+        {!uploaded ? (
+          <div className="search-container">
             <div
               style={{
                 display: "flex",
@@ -104,6 +107,7 @@ const App = () => {
                 alignItems: "center",
                 justifyContent: "center",
                 alignContent: "center",
+                marginBottom: "20px",
               }}
             >
               <label
@@ -114,7 +118,7 @@ const App = () => {
                   justifyContent: "center",
                 }}
               >
-                Encoding (default: UTF-8)
+                エンコーディング (デフォルト: UTF-8)
               </label>
               <select
                 id="encoding"
@@ -139,7 +143,7 @@ const App = () => {
                   justifyContent: "center",
                 }}
               >
-                Enter CSV File
+                CSVファイルを選択
               </label>
               <input
                 style={{ display: "block", alignSelf: "center" }}
@@ -152,72 +156,71 @@ const App = () => {
                 type="File"
               />
             </div>
-          ) : null}
-
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <label htmlFor="searchText">Search Text</label>
-
-            <input
-              type="text"
-              value={searchText}
-              style={{
-                display: "block",
-                marginTop: "10px",
-                marginBottom: "10px",
-              }}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-                const searchTextBigrams = convertTextToBigramArr(
-                  e.target.value
-                );
-
-                setGramCount(searchTextBigrams.length);
-              }}
-            />
-            <button onClick={handleSearch}>calulate matches</button>
           </div>
-        </div>
-        <div className="results-container">
-          {matches.length > 0 ? (
-            <div>
-              <h2
-                style={{
-                  textAlign: "center",
-                }}
-              >
-                Matches
-              </h2>
+        ) : (
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              <label htmlFor="searchText">
+                検索する文字列を入力してください
+              </label>
 
-              {matches.map((match) => {
-                return (
-                  <p
-                    style={{
-                      padding: "10px",
-                    }}
-                  >
-                    {match}
-                  </p>
-                );
-              })}
-            </div>
-          ) : (
-            <div>
-              <h2
+              <input
+                type="text"
+                value={searchText}
                 style={{
-                  textAlign: "center",
+                  display: "block",
+                  marginTop: "10px",
+                  marginBottom: "10px",
+                }}
+                onChange={(e) => {
+                  setSearchText(e.target.value);
+                  const searchTextBigrams = convertTextToBigramArr(
+                    e.target.value
+                  );
+
+                  setGramCount(searchTextBigrams.length);
+                }}
+              />
+              <button onClick={handleSearch}>検索</button>
+            </div>
+
+            <div className="results-container">
+              <div
+                style={{
+                  width: "2000px",
+                  minWidth: "100%",
                 }}
               >
-                No Matches
-              </h2>
+                <h2
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  {matches.length}件のヒット
+                </h2>
+
+                {matches.map((match) => {
+                  return (
+                    <p
+                      style={{
+                        padding: "10px",
+                        textAlign: "center",
+                      }}
+                    >
+                      {match}
+                    </p>
+                  );
+                })}
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     );
   }
