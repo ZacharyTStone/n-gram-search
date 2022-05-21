@@ -14,18 +14,19 @@ import {
 } from "./utils";
 
 const App = () => {
+  // ファイル
   const [CSV, setCSV] = useState([]);
-
+  // インデックスファイル
   const [indexedCSV, setIndexedCSV] = useState([]);
-
+  //　検索文字列
   const [searchText, setSearchText] = useState("");
-
+  // 検索結果
   const [matches, setMatches] = useState([]);
-
+  //　検索文字列のbigramの数
   const [gramCount, setGramCount] = useState(0);
-
+  // ローディング
   const [loading, setLoading] = useState(false);
-
+  //　UI　を隠す
   const [uploaded, setUploaded] = useState(false);
 
   const UTFEncodings = ["UTF-8", "UTF-16", "Shift_JIS", "EUC-JP"];
@@ -35,7 +36,6 @@ const App = () => {
   // 1. CSVを読み込む
 
   const handleUpload = (e, encodingChoice) => {
-    // dont hide the file input
     e.preventDefault();
     const file = handleFileChange(e);
     if (file) {
@@ -44,7 +44,7 @@ const App = () => {
         encoding: encodingChoice,
         complete: (results) => {
           setCSV(results.data);
-          setIndexedCSV(indexCSV(results.data));
+          setIndexedCSV(indexCSV(results.data)); // 手伝う　function　F
           setLoading(false);
           alert("CSVを読み込みました");
           setUploaded(true);
@@ -54,23 +54,28 @@ const App = () => {
   };
 
   // --------------------------------------------------//
+
   // 2. CSVを検索する
+
+  // --------------------------------------------------//
 
   const handleSearch = () => {
     setLoading(true);
+
+    //  もっと時間があったら、setTimeoutを使わずに、ASYNC や　Context APi/ Reduxを使たい
     setTimeout(() => {
       setLoading(false);
     }, 2000);
-    if (searchText.length > 0) {
-      const searchTextBigrams = convertTextToBigramArr(searchText);
 
-      let results = findMatches(indexedCSV, searchTextBigrams, gramCount);
+    if (searchText.length > 0) {
+      const searchTextBigrams = convertTextToBigramArr(searchText); // 手伝う function B
+
+      let results = findMatches(indexedCSV, searchTextBigrams, gramCount); // 手伝う function D
 
       // 日本の郵便番号のCSVのチェック
 
       if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
-        //
-        results = combineZipcodesAndPrepString(results, CSV);
+        results = combineZipcodesAndPrepString(results, CSV); // 手伝う function A
       } else {
         // convert the file to string
         results = results.map((result) => {
@@ -182,7 +187,7 @@ const App = () => {
                   setSearchText(e.target.value);
                   const searchTextBigrams = convertTextToBigramArr(
                     e.target.value
-                  );
+                  ); // 手伝う function B
 
                   setGramCount(searchTextBigrams.length);
                 }}

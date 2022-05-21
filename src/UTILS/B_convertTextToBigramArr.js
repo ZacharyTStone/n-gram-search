@@ -1,5 +1,5 @@
 const convertTextToBigramArr = (text) => {
-  let searchTextBigrams = [];
+  let searchTextBigrams = []; // remove all of the spaces from the search text
   text = text.replace(/\s/g, "");
 
   while (text.length > 1) {
