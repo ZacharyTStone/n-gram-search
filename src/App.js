@@ -11,7 +11,7 @@ import {
   findMatches,
   handleFileChange,
   indexCSV,
-} from "./utils";
+} from "./utils/index";
 
 const App = () => {
   const [CSV, setCSV] = useState([]);
