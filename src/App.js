@@ -3,15 +3,15 @@ import Title from "./components/Title";
 import Papa from "papaparse";
 import "./App.css";
 
-// helper functions
+// 手伝う functions
 
 import {
-  combineZipcodesAndPrepString,
   convertTextToBigramArr,
   findMatches,
-  handleFileChange,
   indexCSV,
-} from "./utils/index";
+  combineZipcodesAndPrepString,
+  handleFileChange,
+} from "./utils";
 
 const App = () => {
   const [CSV, setCSV] = useState([]);
@@ -32,7 +32,7 @@ const App = () => {
 
   const [encoding, setEncoding] = useState("UTF-8");
 
-  // 1. called when user uploads a file
+  // 1. CSVを読み込む
 
   const handleUpload = (e, encodingChoice) => {
     // dont hide the file input
@@ -53,7 +53,7 @@ const App = () => {
     }
   };
 
-  // 2.  called when user searches
+  // 2. CSVを検索する
 
   const handleSearch = () => {
     setLoading(true);
@@ -68,10 +68,10 @@ const App = () => {
     let results = findMatches(indexedCSV, searchTextBigrams, gramCount);
     console.log(results);
 
-    // check just to see if the file is the Japan one
-    console.log(CSV[0][0]);
+    // 日本の郵便番号のCSVのチェック
+
     if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
-      // if the file is the Japan one, then we need to combine the zipcodes
+      //
       results = combineZipcodesAndPrepString(results, CSV);
     } else {
       // convert the file to string
@@ -83,7 +83,7 @@ const App = () => {
     setMatches(results);
   };
 
-  // begining of UI Code
+  //  UI の　始まる
 
   if (loading) {
     return (

@@ -1,6 +1,3 @@
-// Allowed extensions for input file
-// This function will be called when
-// the file input changes
 const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (file) {
