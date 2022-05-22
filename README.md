@@ -4,7 +4,7 @@ https://youtu.be/Mnx3WJhz34E
 
 ## Live Site (サイト）
 
-https://628a706ca833120438a9aa75--visionary-squirrel-603b74.netlify.app/
+https://628a742a618f47087811e19a--visionary-squirrel-603b74.netlify.app/
 
 ## How to run 実行方法
 
