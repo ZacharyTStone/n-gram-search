@@ -1,22 +1,23 @@
-## Demo
+## Demo 
 
-https://youtu.be/jq82MNyVlZQ
+https://youtu.be/Mnx3WJhz34E
 
-## How to run
+## How to run 実行方法
 
-1. Install the dependencies:
+1. download the repo  リポジトリをダウンロードする
 
+2. Install the dependencies:
 ```
 npm install
 ```
 
-2. Run the site:
+3. Run the site:
 
 ```
 npm start
 ```
 
-3. Open the site in your browser:
+4. Open the site in your browser:
 
 ```
 http://localhost:3000
