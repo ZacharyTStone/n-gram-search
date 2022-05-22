@@ -33,7 +33,11 @@ const App = () => {
 
   const [encoding, setEncoding] = useState("UTF-8");
 
+  // --------------------------------------------------//
+
   // 1. CSVを読み込む
+
+  // --------------------------------------------------//
 
   const handleUpload = (e, encodingChoice) => {
     e.preventDefault();
@@ -72,12 +76,11 @@ const App = () => {
 
       let results = findMatches(indexedCSV, searchTextBigrams, gramCount); // 手伝う function D
 
-      // 日本の郵便番号のCSVのチェック
+      // ファイルは日本の郵便番号ですかどうかのチェック
 
       if (CSV[0][0] === "01101" || CSV[0][0] === "1101") {
         results = combineZipcodesAndPrepString(results, CSV); // 手伝う function A
       } else {
-        // convert the file to string
         results = results.map((result) => {
           let curr = CSV[result].join("");
           return curr;
@@ -215,7 +218,7 @@ const App = () => {
                     <p
                       style={{
                         padding: "10px",
-                        textAlign: "center",
+                        textAlign: "left",
                       }}
                     >
                       {match}
