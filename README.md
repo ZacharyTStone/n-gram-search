@@ -27,3 +27,5 @@ npm start
 ```
 http://localhost:3000
 ```
+
+(You can test with the CSV files provided in the Example CSVs Folder)
