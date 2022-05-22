@@ -11,7 +11,7 @@ import {
   indexCSV,
   combineZipcodesAndPrepString,
   handleFileChange,
-} from "./utils";
+} from "./UTILS";
 
 const App = () => {
   // ファイル
