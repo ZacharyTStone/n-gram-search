@@ -1,4 +1,29 @@
-Old Project
+## Demo
 
+https://youtu.be/Mnx3WJhz34E
 
-Moved to https://github.com/zachinjapan/CSV-Search
+## Live Site (サイト）
+
+https://628a706ca833120438a9aa75--visionary-squirrel-603b74.netlify.app/
+
+## How to run 実行方法
+
+1. download the repo リポジトリをダウンロードする
+
+2. Install the dependencies:
+
+```
+npm install
+```
+
+3. Run the site:
+
+```
+npm start
+```
+
+4. Open the site in your browser:
+
+```
+http://localhost:3000
+```

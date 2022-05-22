@@ -201,8 +201,8 @@ const App = () => {
             <div className="results-container">
               <div
                 style={{
-                  width: "2000px",
-                  minWidth: "100%",
+                  width: "100%",
+                  maxWidth: "70vw",
                 }}
               >
                 <h2
